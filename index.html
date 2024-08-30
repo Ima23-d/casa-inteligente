@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente Virtual</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            text-align: center;
+        }
+        
+        #mic-btn {
+            background-color: #007bff;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        #mic-btn img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .dot {
+            width: 15px;
+            height: 15px;
+            margin: 0 5px;
+            background-color: #007bff;
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="mic-btn">
+            <img src="microfone-gravador.png" alt="Microfone">
+        </button>
+        <div id="animation" class="hidden">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    <div id="response"></div>
+
+    <script>
+        // Verifica se o navegador suporta a API Web Speech
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR'; // Define o idioma para português brasileiro
+
+            const micBtn = document.getElementById('mic-btn');
+            const micImg = micBtn.querySelector('img');
+            const animation = document.getElementById('animation');
+            const responseDiv = document.getElementById('response');
+
+            micBtn.addEventListener('click', () => {
+                // Oculta o ícone do microfone e mostra a animação
+                micImg.classList.add('hidden');
+                animation.classList.remove('hidden');
+
+                recognition.start(); // Inicia o reconhecimento de voz
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase(); // Obtém o texto transcrito
+
+                // Verifica comandos
+                if (transcript.includes('ligar luz do quarto')) {
+                    responseDiv.innerText = 'Ligando a luz do quarto...';
+                } else if (transcript.includes('desligar luz do quarto')) {
+                    responseDiv.innerText = 'Desligando a luz do quarto...';
+                } else {
+                    responseDiv.innerText = `Comando não reconhecido: ${transcript}`;
+                }
+
+                // Volta ao estado original após o reconhecimento
+                animation.classList.add('hidden');
+                micImg.classList.remove('hidden');
+            };
+
+            recognition.onerror = (event) => {
+                console.error(event.error);
+                responseDiv.innerText = 'Ocorreu um erro no reconhecimento de voz.';
+                animation.classList.add('hidden');
+                micImg.classList.remove('hidden');
+            };
+        } else {
+            alert('Seu navegador não suporta reconhecimento de voz.');
+        }
+    </script>
+</body>
+</html>
